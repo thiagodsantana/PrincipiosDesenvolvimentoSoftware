@@ -5,30 +5,38 @@
         Subclasses devem poder substituir suas classes base sem causar erros.
 
         - Violação do princípio
-            Aqui, ContaSalario não permite saque livre, mas herda de ContaBancaria, que permite. 
+            Aqui, ContaPoupanca não permite saque, mas herda de ContaBancaria, que permite. 
                 Isso pode confundir o usuário.
 
-        - Problema: Quem usa ContaBancaria espera que saques sejam permitidos, mas ContaSalario quebra 
-            esse comportamento.
+        - Problema: Se o código espera que todas as contas bancárias possam sacar dinheiro, 
+                        a ContaPoupanca viola esse princípio, quebrando o fluxo normal do programa.
      */
-    public class ContaBancaria
+    class ContaBancaria
     {
-        protected decimal saldo;
+        public decimal Saldo { get; protected set; }
+
+        public ContaBancaria(decimal saldoInicial)
+        {
+            Saldo = saldoInicial;
+        }
 
         public virtual void Sacar(decimal valor)
         {
-            if (valor > saldo)
-                throw new Exception("Saldo insuficiente!");
-
-            saldo -= valor;
+            if (valor > Saldo)
+            {
+                throw new InvalidOperationException("Saldo insuficiente");
+            }
+            Saldo -= valor;
         }
     }
 
-    public class ContaSalario : ContaBancaria
+    class ContaPoupanca : ContaBancaria
     {
+        public ContaPoupanca(decimal saldoInicial) : base(saldoInicial) { }
+
         public override void Sacar(decimal valor)
         {
-            throw new Exception("Conta salário só permite saque na folha de pagamento!");
+            throw new NotImplementedException("Conta poupança não permite saques diretos");
         }
     }
 }

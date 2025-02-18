@@ -2,33 +2,47 @@
 {
     /*
      * Com LSP
-            Agora, ContaSalario não herda de ContaBancaria, mas define seu próprio comportamento.
+            Aqui, garantimos que ContaPoupanca permite saques, mas adicionamos uma restrição realista 
+                sem alterar o comportamento esperado da classe base.
         
         - Benefício: ContaSalario não quebra a substituição porque não promete um comportamento 
             que não pode cumprir.
      */
-    public abstract class ContaBancaria
+    class ContaBancaria
     {
-        protected decimal saldo;
-        public abstract void Sacar(decimal valor);
-    }
+        public decimal Saldo { get; protected set; }
 
-    public class ContaCorrente : ContaBancaria
-    {
-        public override void Sacar(decimal valor)
+        public ContaBancaria(decimal saldoInicial)
         {
-            if (valor > saldo)
-                throw new Exception("Saldo insuficiente!");
+            Saldo = saldoInicial;
+        }
 
-            saldo -= valor;
+        public virtual void Sacar(decimal valor)
+        {
+            if (valor > Saldo)
+            {
+                throw new InvalidOperationException("Saldo insuficiente");
+            }
+            Saldo -= valor;
         }
     }
 
-    public class ContaSalario
+    class ContaPoupanca : ContaBancaria
     {
-        public static void SacarFolhaPagamento()
+        private readonly int limiteSaques = 3;
+        private int saquesRealizados = 0;
+
+        public ContaPoupanca(decimal saldoInicial) : base(saldoInicial) { }
+
+        public override void Sacar(decimal valor)
         {
-            Console.WriteLine("Saque permitido apenas na data de pagamento.");
+            if (saquesRealizados >= limiteSaques)
+            {
+                throw new InvalidOperationException("Limite de saques atingido");
+            }
+
+            base.Sacar(valor);
+            saquesRealizados++;
         }
     }
 }
